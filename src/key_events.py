@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 
 
+
 def handle_key_event(event, instance):
     key = event.key()
     print(key)

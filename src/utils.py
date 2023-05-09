@@ -16,8 +16,6 @@ def find_files(directory, file_patterns):
     return matching_files
 
 
-# wallpaper_path = "/path/to/your/wallpaper.jpg"
-
 def set_walpaper(wallpaper_path):
     # Определяем окружение рабочего стола
     desktop_environment = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()

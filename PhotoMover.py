@@ -10,6 +10,7 @@ from src import main_ui, utils
 from src.key_events import handle_key_event
 from src.toolbar import create_toolbar
 from src.label_handler import show_label
+# from src.ui_utils import confirm_exit
 
 
 class ExampleApp(QtWidgets.QMainWindow, main_ui.Ui_MainWindow):
@@ -98,11 +99,9 @@ class ExampleApp(QtWidgets.QMainWindow, main_ui.Ui_MainWindow):
         self.setWindowTitle(self.current_image.split('/')[-1])
 
     def prew_image(self):
-
-        print(self.curren_image_index)
         self.curren_image_index -= 1
-        if self.curren_image_index == len(self.imgs):
-            self.curren_image_index = 0
+        if self.curren_image_index == -1:
+            self.curren_image_index = len(self.imgs) - 1
         self.set_image(self.imgs[self.curren_image_index])
         self.current_image = self.imgs[self.curren_image_index]
         self.setWindowTitle(self.current_image.split('/')[-1])
