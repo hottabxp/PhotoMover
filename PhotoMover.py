@@ -1,16 +1,14 @@
 import sys  # sys нужен для передачи argv в QApplication
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QGraphicsScene, QToolBar, QAction
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtCore import Qt, QTimer
 
 import configparser
 
-import utils
-
-import gui  # Это наш конвертированный файл дизайна
-from key_events import handle_key_event
-from toolbar import create_toolbar
+from src import gui, utils
+from src.key_events import handle_key_event
+from src.toolbar import create_toolbar
 
 
 class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
