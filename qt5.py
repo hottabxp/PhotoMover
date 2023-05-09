@@ -9,6 +9,7 @@ import configparser
 import utils
 
 import gui  # Это наш конвертированный файл дизайна
+from key_events import handle_key_event
 
 
 class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
@@ -136,29 +137,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.close()
 
     def keyPressEvent(self, event):
-        key = event.key()
-        print(key)
-
-        if key == Qt.Key_Right:
-            self.next_image()
-            print('Right')
-        elif key == Qt.Key_Left:
-            self.prew_image()
-        elif key == Qt.Key_A:
-            self.prew_image()
-        elif key == Qt.Key_F11:
-            if self.isFullScreen():
-                self.showNormal()
-            # В противном случае разворачиваем окно на полный экран
-            else:
-                self.showFullScreen()
-        elif key == Qt.Key_Escape:
-            if self.conf_confirm_exit == "True":
-                self.confirm_exit()
-            else:
-                self.close()
-        else:
-            pass
+        handle_key_event(event, self)
 
     def next_image(self):
 
