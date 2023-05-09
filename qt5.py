@@ -15,7 +15,7 @@ from toolbar import create_toolbar
 
 class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     # noinspection PyUnresolvedReferences
-    def __init__(self, ccc):
+    def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле gui.py
         super().__init__()
@@ -24,9 +24,8 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.label = None
         self.config = None
         self.conf_last_directory = None
-        self.ccc = ccc
+
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
-        print(self.ccc)
         self.statusBar().hide()
 
         ################################################
@@ -60,8 +59,10 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.current_image = self.imgs[0]
         self.setWindowTitle(self.current_image.split('/')[-1])
 
-    # @staticmethod
     def show_label(self, text):
+        if self.label:
+            self.label.hide()
+            self.timer.stop()
 
         self.label = QtWidgets.QLabel(text, self)
         self.label.move(10, self.height() - 35)
@@ -89,8 +90,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print(self.conf_confirm_exit)
 
     def set_wallpaper(self):
-        print(self.current_image)
-        # utils.set_walpaper(self.current_image)
+
         self.show_label(self.current_image)
         pass
 
@@ -149,7 +149,6 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.next_image()
 
     def set_image(self, image_path):
-
         pixmap = QPixmap(image_path).scaled(self.graphicsView.size())
         self.scene.addPixmap(pixmap)
         self.graphicsView.setScene(self.scene)
@@ -157,7 +156,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-    window = ExampleApp('www')  # Создаём объект класса ExampleApp
+    window = ExampleApp()  # Создаём объект класса ExampleApp
     window.show()  # Показываем окно
     # window.showFullScreen()
     app.exec_()  # и запускаем приложение
