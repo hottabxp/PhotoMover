@@ -1,4 +1,4 @@
-import sys  # sys нужен для передачи argv в QApplication
+import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QGraphicsScene
@@ -6,79 +6,47 @@ from PyQt5.QtCore import Qt, QTimer
 
 import configparser
 
-from src import gui, utils
+from src import main_ui, utils
 from src.key_events import handle_key_event
 from src.toolbar import create_toolbar
+from src.label_handler import show_label
 
 
-class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
+class ExampleApp(QtWidgets.QMainWindow, main_ui.Ui_MainWindow):
     # noinspection PyUnresolvedReferences
     def __init__(self):
-        # Это здесь нужно для доступа к переменным, методам
-        # и т.д. в файле gui.py
         super().__init__()
         self.conf_confirm_exit = None
         self.timer = None
         self.label = None
         self.config = None
         self.conf_last_directory = None
+        self.curren_image_index = 0
+        self.current_image = ''
+        image_patterns = ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"]
 
-        self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+        self.setupUi(self)
         self.statusBar().hide()
 
         ################################################
         self.scene = QGraphicsScene(self)
         self.load_config()
-
-        # Вызываем функцию create_toolbar и присваиваем результат переменной self.toolbar
         self.toolbar = create_toolbar(self)
-
         self.addToolBar(self.toolbar)
 
         ################################################
 
         self.setFocus()
         self.graphicsView.setFocusPolicy(Qt.NoFocus)
-
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
         self.graphicsView.setGeometry(0, 0, self.width(), self.height())
 
-        self.test = 0
-        self.current_image = ''
-
-        image_patterns = ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"]
-
         self.imgs = utils.find_files(self.conf_last_directory, image_patterns)
-
         self.set_image(self.imgs[0])
-
         self.current_image = self.imgs[0]
         self.setWindowTitle(self.current_image.split('/')[-1])
 
-    def show_label(self, text):
-        if self.label:
-            self.label.hide()
-            self.timer.stop()
-
-        self.label = QtWidgets.QLabel(text, self)
-        self.label.move(10, self.height() - 35)
-        print(self.width(), self.height())
-        self.label.setStyleSheet("font: 16pt; color: red")
-        self.label.setFixedWidth(self.width())
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.hide_label)
-        self.timer.start(3000)
-
-        self.label.show()
-
-        # width - ширина
-
-    def hide_label(self):
-        self.label.hide()
-        self.timer.stop()
 
     def load_config(self):
         self.config = configparser.ConfigParser()
@@ -88,14 +56,13 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print(self.conf_confirm_exit)
 
     def set_wallpaper(self):
+        show_label(self, self.current_image)
 
-        self.show_label(self.current_image)
-        pass
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.graphicsView.setGeometry(0, 0, self.width(), self.height())
-        self.set_image(self.imgs[self.test])
+        self.set_image(self.imgs[self.curren_image_index])
         self.setFocus()
 
     def prew_triggered(self):
@@ -122,22 +89,22 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def next_image(self):
 
-        print(self.test)
-        self.test += 1
-        if self.test == len(self.imgs):
-            self.test = 0
-        self.set_image(self.imgs[self.test])
-        self.current_image = self.imgs[self.test]
+        print(self.curren_image_index)
+        self.curren_image_index += 1
+        if self.curren_image_index == len(self.imgs):
+            self.curren_image_index = 0
+        self.set_image(self.imgs[self.curren_image_index])
+        self.current_image = self.imgs[self.curren_image_index]
         self.setWindowTitle(self.current_image.split('/')[-1])
 
     def prew_image(self):
 
-        print(self.test)
-        self.test -= 1
-        if self.test == len(self.imgs):
-            self.test = 0
-        self.set_image(self.imgs[self.test])
-        self.current_image = self.imgs[self.test]
+        print(self.curren_image_index)
+        self.curren_image_index -= 1
+        if self.curren_image_index == len(self.imgs):
+            self.curren_image_index = 0
+        self.set_image(self.imgs[self.curren_image_index])
+        self.current_image = self.imgs[self.curren_image_index]
         self.setWindowTitle(self.current_image.split('/')[-1])
 
     def click_prew(self):
