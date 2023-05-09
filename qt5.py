@@ -2,7 +2,9 @@ import sys  # sys нужен для передачи argv в QApplication
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QGraphicsScene, QToolBar, QAction
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
+
+import configparser
 
 import utils
 
@@ -15,6 +17,11 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле gui.py
         super().__init__()
+        self.conf_confirm_exit = None
+        self.timer = None
+        self.label = None
+        self.config = None
+        self.conf_last_directory = None
         self.ccc = ccc
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         print(self.ccc)
@@ -36,21 +43,20 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.x = QAction('Hello', self)
 
-
-        self.left_toolbar = QToolBar(self)
-        self.left_toolbar.setFixedWidth(100)
-        self.left_toolbar.addAction(self.x)
-        self.addToolBar(Qt.LeftToolBarArea, self.left_toolbar)
-
         self.toolbar.setStyleSheet("QToolBar { background-color: rgba(255, 255, 255, 2); }")
 
         self.addToolBar(self.toolbar)
 
         self.scene = QGraphicsScene(self)
-
+        self.load_config()
         # Создаем действия для панели инструментов
         prew = QAction(QIcon('assets/back.png'), "", self)
         prew.triggered.connect(self.prew_triggered)
+
+        exit_buttone = QAction(QIcon('assets/exit.png'), "", self)
+
+        settings_button = QAction(QIcon('assets/setting.png'), "", self)
+
 
         nxt = QAction(QIcon('assets/next.png'), '', self)
         nxt.triggered.connect(self.nxt_triggered)
@@ -58,21 +64,50 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         set_wlp = QAction(QIcon('assets/wallpaper.png'), '', self)
         set_wlp.triggered.connect(self.set_wallpaper)
 
-        self.toolbar.addActions((prew, nxt, set_wlp))
+        self.toolbar.addActions((prew, nxt, set_wlp, settings_button, exit_buttone))
 
-        directory = "/home/sergey/Рабочий стол/images/"
+        # directory = "/home/sergey/Рабочий стол/images/"
         image_patterns = ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"]
 
-        self.imgs = utils.find_files(directory, image_patterns)
+        self.imgs = utils.find_files(self.conf_last_directory, image_patterns)
 
         self.set_image(self.imgs[0])
 
         self.current_image = self.imgs[0]
         self.setWindowTitle(self.current_image.split('/')[-1])
 
+    # @staticmethod
+    def show_label(self, text):
+
+        self.label = QtWidgets.QLabel(text, self)
+        self.label.move(10, self.height() - 35)
+        print(self.width(), self.height())
+        self.label.setStyleSheet("font: 16pt; color: red")
+        self.label.setFixedWidth(self.width())
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.hide_label)
+        self.timer.start(3000)
+
+        self.label.show()
+
+        # width - ширина
+
+    def hide_label(self):
+        self.label.hide()
+        self.timer.stop()
+
+    def load_config(self):
+        self.config = configparser.ConfigParser()
+        self.config.read('config.ini')
+        self.conf_confirm_exit = self.config['Core']['Confirm_exit']
+        self.conf_last_directory = self.config['Core']['last_directory']
+        print(self.conf_confirm_exit)
+
     def set_wallpaper(self):
         print(self.current_image)
         # utils.set_walpaper(self.current_image)
+        self.show_label(self.current_image)
         pass
 
     def resizeEvent(self, event):
@@ -87,6 +122,18 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def nxt_triggered(self):
         self.next_image()
+
+    def confirm_exit(self):
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Exit",
+            "Закрыть приложение?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.close()
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -106,7 +153,10 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             else:
                 self.showFullScreen()
         elif key == Qt.Key_Escape:
-            self.close()
+            if self.conf_confirm_exit == "True":
+                self.confirm_exit()
+            else:
+                self.close()
         else:
             pass
 
@@ -139,9 +189,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def set_image(self, image_path):
 
         pixmap = QPixmap(image_path).scaled(self.graphicsView.size())
-
         self.scene.addPixmap(pixmap)
-
         self.graphicsView.setScene(self.scene)
 
 
