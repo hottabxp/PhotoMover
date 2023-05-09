@@ -10,6 +10,7 @@ import utils
 
 import gui  # Это наш конвертированный файл дизайна
 from key_events import handle_key_event
+from toolbar import create_toolbar
 
 
 class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
@@ -28,6 +29,17 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         print(self.ccc)
         self.statusBar().hide()
 
+        ################################################
+        self.scene = QGraphicsScene(self)
+        self.load_config()
+
+        # Вызываем функцию create_toolbar и присваиваем результат переменной self.toolbar
+        self.toolbar = create_toolbar(self)
+
+        self.addToolBar(self.toolbar)
+
+        ################################################
+
         self.setFocus()
         self.graphicsView.setFocusPolicy(Qt.NoFocus)
 
@@ -39,35 +51,6 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.test = 0
         self.current_image = ''
 
-        self.toolbar = QToolBar(self)
-        self.toolbar.setAttribute(Qt.WA_TranslucentBackground, True)
-
-        self.x = QAction('Hello', self)
-
-        self.toolbar.setStyleSheet("QToolBar { background-color: rgba(255, 255, 255, 2); }")
-
-        self.addToolBar(self.toolbar)
-
-        self.scene = QGraphicsScene(self)
-        self.load_config()
-        # Создаем действия для панели инструментов
-        prew = QAction(QIcon('assets/back.png'), "", self)
-        prew.triggered.connect(self.prew_triggered)
-
-        exit_buttone = QAction(QIcon('assets/exit.png'), "", self)
-
-        settings_button = QAction(QIcon('assets/setting.png'), "", self)
-
-
-        nxt = QAction(QIcon('assets/next.png'), '', self)
-        nxt.triggered.connect(self.nxt_triggered)
-
-        set_wlp = QAction(QIcon('assets/wallpaper.png'), '', self)
-        set_wlp.triggered.connect(self.set_wallpaper)
-
-        self.toolbar.addActions((prew, nxt, set_wlp, settings_button, exit_buttone))
-
-        # directory = "/home/sergey/Рабочий стол/images/"
         image_patterns = ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"]
 
         self.imgs = utils.find_files(self.conf_last_directory, image_patterns)
