@@ -10,7 +10,6 @@ from src import main_ui, utils
 from src.key_events import handle_key_event
 from src.toolbar import create_toolbar
 from src.label_handler import show_label
-# from src.ui_utils import confirm_exit
 
 
 class ExampleApp(QtWidgets.QMainWindow, main_ui.Ui_MainWindow):
@@ -54,7 +53,7 @@ class ExampleApp(QtWidgets.QMainWindow, main_ui.Ui_MainWindow):
         self.config.read('config.ini')
         self.conf_confirm_exit = self.config['Core']['Confirm_exit']
         self.conf_last_directory = self.config['Core']['last_directory']
-        print(self.conf_confirm_exit)
+
 
     def set_wallpaper(self):
         show_label(self, self.current_image)
@@ -122,7 +121,6 @@ def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
     window = ExampleApp()  # Создаём объект класса ExampleApp
     window.show()  # Показываем окно
-    # window.showFullScreen()
     app.exec_()  # и запускаем приложение
 
 
